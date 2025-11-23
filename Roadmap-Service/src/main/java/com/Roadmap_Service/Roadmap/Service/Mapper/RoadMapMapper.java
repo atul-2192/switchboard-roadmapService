@@ -27,7 +27,6 @@ public class RoadMapMapper {
                 .rewardPoints(task.getRewardPoints())
                 .titleColor(task.getTitleColor())
                 .daysToComplete(task.getDaysToComplete())
-                .assignmentId(task.getAssignment() != null ? task.getAssignment().getId() : null)
                 .build();
     }
 
@@ -84,7 +83,6 @@ public class RoadMapMapper {
         if (dto.getTasks() != null) {
             for (TaskRequestDTO taskDTO : dto.getTasks()) {
                 Task task = toTaskEntity(taskDTO);
-                task.setAssignment(assignment);
                 assignment.getTasks().add(task);
             }
         }

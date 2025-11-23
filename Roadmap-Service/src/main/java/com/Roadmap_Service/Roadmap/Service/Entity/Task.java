@@ -18,15 +18,14 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
+    private String topic;
+    private int orderNumber;
     private String title;
     private String description;
     private int rewardPoints;
     private String titleColor;
     private int daysToComplete;
+    @Column(name="assignment_id", nullable = false, updatable = false)
+    private UUID assignmentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignment_id", nullable = false)
-    @JsonIgnore
-    private RoadMapAssignment assignment;
 }

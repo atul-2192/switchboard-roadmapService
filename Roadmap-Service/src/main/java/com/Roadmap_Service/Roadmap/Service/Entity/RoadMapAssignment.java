@@ -23,13 +23,12 @@ public class RoadMapAssignment {
     private String title;
     private String description;
 
-    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "assignment_id")
     private List<Task> tasks = new ArrayList<>();
 
     public void addTask(Task task) {
         tasks.add(task);
-        task.setAssignment(this);
     }
 
 }

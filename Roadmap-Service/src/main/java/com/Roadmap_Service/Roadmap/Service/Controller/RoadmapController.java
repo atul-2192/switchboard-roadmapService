@@ -5,10 +5,7 @@ import com.Roadmap_Service.Roadmap.Service.DTO.RoadMapAssignmentResponseDTO;
 import com.Roadmap_Service.Roadmap.Service.Service.RoadMapService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import com.Roadmap_Service.Roadmap.Service.DTO.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +31,6 @@ public class RoadmapController {
 
     @PostMapping
     @Operation(summary = "Create a new roadmap assignment", description = "Creates a new roadmap assignment with tasks")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Assignment created successfully",
-                    content = @Content(schema = @Schema(implementation = RoadMapAssignmentResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
-    })
     public ResponseEntity<RoadMapAssignmentResponseDTO> createAssignment(@Valid @RequestBody RoadMapAssignmentRequestDTO requestDTO) {
         log.info("RoadmapController :: createAssignment() :: Received Request :: Assignment Title: {}", requestDTO.getTitle());
         RoadMapAssignmentResponseDTO responseDTO = roadMapService.saveAssignment(requestDTO);
@@ -48,7 +40,6 @@ public class RoadmapController {
 
     @GetMapping
     @Operation(summary = "Get all roadmap assignments", description = "Retrieves a list of all roadmap assignments")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of assignments")
     public List<RoadMapAssignmentResponseDTO> getAllAssignments() {
         log.info("RoadmapController :: getAllAssignments() :: Fetching All :: Assignments");
         List<RoadMapAssignmentResponseDTO> assignments = roadMapService.getAllAssignments();
@@ -58,11 +49,6 @@ public class RoadmapController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get assignment by ID", description = "Retrieves a specific roadmap assignment by its ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Assignment found",
-                    content = @Content(schema = @Schema(implementation = RoadMapAssignmentResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Assignment not found", content = @Content)
-    })
     public ResponseEntity<RoadMapAssignmentResponseDTO> getAssignmentById(
             @Parameter(description = "ID of the assignment to retrieve") @PathVariable UUID id) {
         log.info("RoadmapController :: getAssignmentById() :: Fetching :: Assignment ID: {}", id);
@@ -80,15 +66,25 @@ public class RoadmapController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an assignment", description = "Deletes a roadmap assignment by its ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Assignment deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Assignment not found")
-    })
     public ResponseEntity<Void> deleteAssignment(
             @Parameter(description = "ID of the assignment to delete") @PathVariable UUID id) {
         log.info("RoadmapController :: deleteAssignment() :: Deleting :: Assignment ID: {}", id);
         roadMapService.deleteAssignment(id);
         log.info("RoadmapController :: deleteAssignment() :: Deleted Successfully :: Assignment ID: {}", id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/add-assignment/{id}")
+    @Operation(
+            summary = "Add a roadmap to workspace and new assignment",
+            description = "Adds a roadmap assignment to the specified workspace"
+    )
+    public ResponseEntity<String> addRoadmapAssignmentToWorkspace(@PathVariable UUID id , @Parameter(description = "User ID of the requester", required = true) @RequestHeader("X-User-Id") String userIdHeader) {
+
+        UUID userId = UUID.fromString(userIdHeader);
+        log.info("RoadmapController :: addRoadmapAssignmentToWorkspace() :: Received Request :: Assignment ID: {} for user {}", id ,userId);
+        ApiResponse apiResponse = roadMapService.addAssignmentRoadmap(id , userId);
+        log.info("RoadmapController :: addRoadmapAssignmentToWorkspace() :: Processed Successfully :: Assignment ID: {}", id);
+        return ResponseEntity.ok("Roadmap assignment added to workspace successfully.");
     }
 }

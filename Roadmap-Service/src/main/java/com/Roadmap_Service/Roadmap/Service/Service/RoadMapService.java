@@ -1,11 +1,16 @@
 package com.Roadmap_Service.Roadmap.Service.Service;
 
+import com.Roadmap_Service.Roadmap.Service.DTO.ApiResponse;
 import com.Roadmap_Service.Roadmap.Service.DTO.RoadMapAssignmentRequestDTO;
 import com.Roadmap_Service.Roadmap.Service.DTO.RoadMapAssignmentResponseDTO;
+import com.Roadmap_Service.Roadmap.Service.DTO.TaskResponseDTO;
 import com.Roadmap_Service.Roadmap.Service.Entity.RoadMapAssignment;
+import com.Roadmap_Service.Roadmap.Service.Entity.Task;
+import com.Roadmap_Service.Roadmap.Service.Feign.WorkspaceClient;
 import com.Roadmap_Service.Roadmap.Service.Mapper.RoadMapMapper;
 import com.Roadmap_Service.Roadmap.Service.Repository.RoadMapRepository;
-
+import com.Roadmap_Service.Roadmap.Service.Repository.TaskRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +20,13 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RoadMapService {
 
     private final RoadMapRepository roadMapRepository;
     private final RoadMapMapper mapper;
-
-    public RoadMapService(RoadMapRepository roadMapRepository, RoadMapMapper mapper) {
-        this.roadMapRepository = roadMapRepository;
-        this.mapper = mapper;
-        log.info("RoadMapService :: Constructor :: Initialized :: RoadMapRepository and RoadMapMapper");
-    }
+    private final WorkspaceClient workspaceClient;
+    private final TaskRepository taskRepository;
 
     @SuppressWarnings("null")
     public RoadMapAssignmentResponseDTO saveAssignment(RoadMapAssignmentRequestDTO requestDTO) {
@@ -82,5 +84,28 @@ public class RoadMapService {
             log.error("RoadMapService :: deleteAssignment() :: Error Occurred :: Assignment ID: {}", id, e);
             throw e;
         }
+    }
+    public ApiResponse addAssignmentRoadmap(UUID assignmentId, UUID userId){
+        log.info("RoadMapService :: addAssignmentRoadmap() :: Adding Roadmap Assignment :: Assignment ID: {}", assignmentId);
+        RoadMapAssignment roadMapAssignment = roadMapRepository.findById(assignmentId).orElse(null);
+        if(roadMapAssignment == null){
+            log.error("RoadMapService :: addAssignmentRoadmap() :: Roadmap Assignment Not Found :: Assignment ID: {}", assignmentId);
+            return ApiResponse.response("Roadmap Assignment not found", false);
+        }
+        List<Task> tasks=taskRepository.findByAssignmentId(assignmentId);
+        if(tasks.isEmpty()){
+            log.info("RoadMapService :: addAssignmentRoadmap() :: No Tasks Found for Assignment :: Assignment ID: {}", assignmentId);
+        }
+        new RoadMapAssignmentResponseDTO();
+        RoadMapAssignmentResponseDTO roadMapAssignmentResponseDTO=mapper.toRoadMapAssignmentResponseDTO(roadMapAssignment);
+        List<TaskResponseDTO> taskResponseDTO=mapper.toTaskResponseDTOList(tasks);
+        roadMapAssignmentResponseDTO.setTasks(taskResponseDTO);
+        if(roadMapAssignmentResponseDTO.getTasks().isEmpty()){
+            log.info("RoadMapService :: addAssignmentRoadmap() :: No Task DTOs to Add for Assignment :: Assignment ID: {}", assignmentId);
+        }
+        ApiResponse apiResponse = workspaceClient.addRoadmapAssignmentToWorkspace(roadMapAssignmentResponseDTO,userId);
+
+        log.info("RoadMapService :: addAssignmentRoadmap() :: Roadmap Assignment Added :: Assignment ID: {}", assignmentId);
+        return apiResponse;
     }
 }
