@@ -1,9 +1,6 @@
 package com.Roadmap_Service.Roadmap.Service.Service;
 
-import com.Roadmap_Service.Roadmap.Service.DTO.ApiResponse;
-import com.Roadmap_Service.Roadmap.Service.DTO.RoadMapAssignmentRequestDTO;
-import com.Roadmap_Service.Roadmap.Service.DTO.RoadMapAssignmentResponseDTO;
-import com.Roadmap_Service.Roadmap.Service.DTO.TaskResponseDTO;
+import com.Roadmap_Service.Roadmap.Service.DTO.*;
 import com.Roadmap_Service.Roadmap.Service.Entity.RoadMapAssignment;
 import com.Roadmap_Service.Roadmap.Service.Entity.Task;
 import com.Roadmap_Service.Roadmap.Service.Feign.WorkspaceClient;
@@ -85,25 +82,42 @@ public class RoadMapService {
             throw e;
         }
     }
-    public ApiResponse addAssignmentRoadmap(UUID assignmentId, UUID userId){
-        log.info("RoadMapService :: addAssignmentRoadmap() :: Adding Roadmap Assignment :: Assignment ID: {}", assignmentId);
-        RoadMapAssignment roadMapAssignment = roadMapRepository.findById(assignmentId).orElse(null);
-        if(roadMapAssignment == null){
-            log.error("RoadMapService :: addAssignmentRoadmap() :: Roadmap Assignment Not Found :: Assignment ID: {}", assignmentId);
-            return ApiResponse.response("Roadmap Assignment not found", false);
+    public ApiResponse addAssignmentRoadmap(AddAssignmentToWorkspaceRequestDTO request, UUID userId){
+
+        UUID assignmentId = request.getAssignmentId();
+        List<UUID> taskIds = request.getTaskIds();
+
+        log.info("RoadMapService :: addSelectedTasksToWorkspace() :: assignmentId: {}, taskIds: {}",
+                assignmentId, taskIds);
+
+        // 1. Fetch Assignment
+        RoadMapAssignment assignment = roadMapRepository.findById(assignmentId).orElse(null);
+        if (assignment == null) {
+            log.info("Assignment not found :: {}", assignmentId);
+            return ApiResponse.response("Assignment not found", false);
         }
-        List<Task> tasks=taskRepository.findByAssignmentId(assignmentId);
-        if(tasks.isEmpty()){
-            log.info("RoadMapService :: addAssignmentRoadmap() :: No Tasks Found for Assignment :: Assignment ID: {}", assignmentId);
+
+        // 2. Fetch only selected tasks (in ONE SQL query)
+        List<Task> tasks = taskRepository.findAllById(taskIds);
+
+        if (tasks.isEmpty()) {
+            log.info("No tasks found for provided taskIds :: {}", taskIds);
+            return ApiResponse.response("No tasks found for provided taskIds", false);
         }
-        new RoadMapAssignmentResponseDTO();
-        RoadMapAssignmentResponseDTO roadMapAssignmentResponseDTO=mapper.toRoadMapAssignmentResponseDTO(roadMapAssignment);
-        List<TaskResponseDTO> taskResponseDTO=mapper.toTaskResponseDTOList(tasks);
-        roadMapAssignmentResponseDTO.setTasks(taskResponseDTO);
-        if(roadMapAssignmentResponseDTO.getTasks().isEmpty()){
-            log.info("RoadMapService :: addAssignmentRoadmap() :: No Task DTOs to Add for Assignment :: Assignment ID: {}", assignmentId);
+
+        // 3. Log if any missing IDs
+        if (tasks.size() != taskIds.size()) {
+            log.info("Some taskIds not found. Requested: {}, Found: {}",
+                    taskIds.size(), tasks.size());
         }
-        ApiResponse apiResponse = workspaceClient.addRoadmapAssignmentToWorkspace(roadMapAssignmentResponseDTO,userId);
+
+        // 4. Prepare DTO for Workspace Service
+        RoadMapAssignmentResponseDTO assignmentDTO = mapper.toRoadMapAssignmentResponseDTO(assignment);
+
+        List<TaskResponseDTO> taskDTOs = mapper.toTaskResponseDTOList(tasks);
+        assignmentDTO.setTasks(taskDTOs);
+
+        ApiResponse apiResponse = workspaceClient.addRoadmapAssignmentToWorkspace(assignmentDTO,userId);
 
         log.info("RoadMapService :: addAssignmentRoadmap() :: Roadmap Assignment Added :: Assignment ID: {}", assignmentId);
         return apiResponse;

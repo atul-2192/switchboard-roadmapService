@@ -1,5 +1,6 @@
 package com.Roadmap_Service.Roadmap.Service.Controller;
 
+import com.Roadmap_Service.Roadmap.Service.DTO.AddAssignmentToWorkspaceRequestDTO;
 import com.Roadmap_Service.Roadmap.Service.DTO.RoadMapAssignmentRequestDTO;
 import com.Roadmap_Service.Roadmap.Service.DTO.RoadMapAssignmentResponseDTO;
 import com.Roadmap_Service.Roadmap.Service.Service.RoadMapService;
@@ -79,12 +80,12 @@ public class RoadmapController {
             summary = "Add a roadmap to workspace and new assignment",
             description = "Adds a roadmap assignment to the specified workspace"
     )
-    public ResponseEntity<String> addRoadmapAssignmentToWorkspace(@PathVariable UUID id , @Parameter(description = "User ID of the requester", required = true) @RequestHeader("X-User-Id") String userIdHeader) {
+    public ResponseEntity<String> addRoadmapAssignmentToWorkspace(@RequestBody AddAssignmentToWorkspaceRequestDTO request, @RequestHeader("X-User-Id") String userIdHeader) {
 
         UUID userId = UUID.fromString(userIdHeader);
-        log.info("RoadmapController :: addRoadmapAssignmentToWorkspace() :: Received Request :: Assignment ID: {} for user {}", id ,userId);
-        ApiResponse apiResponse = roadMapService.addAssignmentRoadmap(id , userId);
-        log.info("RoadmapController :: addRoadmapAssignmentToWorkspace() :: Processed Successfully :: Assignment ID: {}", id);
+        log.info("RoadmapController :: addRoadmapAssignmentToWorkspace() :: Received Request :: Assignment ID: {} for user {}", request ,userId);
+        ApiResponse apiResponse = roadMapService.addAssignmentRoadmap(request , userId);
+        log.info("RoadmapController :: addRoadmapAssignmentToWorkspace() :: Processed Successfully :: Assignment ID: {}", request);
         return ResponseEntity.ok("Roadmap assignment added to workspace successfully.");
     }
 }
