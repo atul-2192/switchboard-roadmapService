@@ -24,4 +24,5 @@ public class TaskResponseDTO {
     private UUID assignmentId;
     private String topic;
     private int orderNumber;
+    private Double estimatedHours;
 }

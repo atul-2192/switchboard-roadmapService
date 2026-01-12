@@ -31,5 +31,5 @@ public class TaskRequestDTO {
 
     @Min(value = 1, message = "Days to complete must be at least 1")
     @Schema(description = "Number of days to complete the task", example = "7")
-    private int daysToComplete;
+    private double estimatedHours;
 }

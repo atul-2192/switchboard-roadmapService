@@ -24,8 +24,8 @@ public class Task {
     private String description;
     private int rewardPoints;
     private String titleColor;
-    private int daysToComplete;
     @Column(name="assignment_id", nullable = false, updatable = false)
     private UUID assignmentId;
+    private Double estimatedHours;
 
 }

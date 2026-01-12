@@ -30,15 +30,10 @@ public class TaskController {
         this.taskService = taskService;
         log.info("TaskController :: Constructor :: Initialized :: TaskService");
     }
-
+//Admin
     // Add task under specific assignment
     @PostMapping("/assignment/{assignmentId}")
     @Operation(summary = "Add task to assignment", description = "Creates a new task and assigns it to a specific roadmap assignment")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Task created successfully",
-                    content = @Content(schema = @Schema(implementation = TaskResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Assignment not found", content = @Content)
-    })
     public ResponseEntity<TaskResponseDTO> addTask(
             @Parameter(description = "ID of the assignment to add task to") @PathVariable UUID assignmentId,
             @Valid @RequestBody TaskRequestDTO requestDTO) {
@@ -47,7 +42,7 @@ public class TaskController {
         log.info("TaskController :: addTask() :: Created Successfully :: Task ID: {}", responseDTO.getId());
         return ResponseEntity.ok(responseDTO);
     }
-
+//    Admin
     // Update task by taskId
     @PutMapping("/{taskId}")
     @Operation(summary = "Update task", description = "Updates an existing task with new details")
@@ -64,8 +59,8 @@ public class TaskController {
         log.info("TaskController :: updateTask() :: Updated Successfully :: Task ID: {}", responseDTO.getId());
         return ResponseEntity.ok(responseDTO);
     }
-
-    // Delete task
+// admin
+// Delete task
     @DeleteMapping("/{taskId}")
     @Operation(summary = "Delete task", description = "Deletes a task by its ID")
     @ApiResponses(value = {
