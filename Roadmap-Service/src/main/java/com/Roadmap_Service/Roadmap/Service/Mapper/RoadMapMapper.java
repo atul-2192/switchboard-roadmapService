@@ -26,8 +26,7 @@ public class RoadMapMapper {
                 .description(task.getDescription())
                 .rewardPoints(task.getRewardPoints())
                 .titleColor(task.getTitleColor())
-                .daysToComplete(task.getDaysToComplete())
-                .assignmentId(task.getAssignment() != null ? task.getAssignment().getId() : null)
+                .estimatedHours(task.getEstimatedHours())
                 .build();
     }
 
@@ -39,7 +38,7 @@ public class RoadMapMapper {
                 .description(dto.getDescription())
                 .rewardPoints(dto.getRewardPoints())
                 .titleColor(dto.getTitleColor())
-                .daysToComplete(dto.getDaysToComplete())
+                .estimatedHours(dto.getEstimatedHours())
                 .build();
     }
 
@@ -50,7 +49,7 @@ public class RoadMapMapper {
         task.setDescription(dto.getDescription());
         task.setRewardPoints(dto.getRewardPoints());
         task.setTitleColor(dto.getTitleColor());
-        task.setDaysToComplete(dto.getDaysToComplete());
+        task.setEstimatedHours(dto.getEstimatedHours());
     }
 
     // RoadMapAssignment Entity to Response DTO
@@ -84,7 +83,6 @@ public class RoadMapMapper {
         if (dto.getTasks() != null) {
             for (TaskRequestDTO taskDTO : dto.getTasks()) {
                 Task task = toTaskEntity(taskDTO);
-                task.setAssignment(assignment);
                 assignment.getTasks().add(task);
             }
         }

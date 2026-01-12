@@ -40,7 +40,6 @@ public class TaskService {
                 });
 
         Task task = mapper.toTaskEntity(requestDTO);
-        task.setAssignment(assignment);
         Task saved = taskRepository.save(task);
 
         log.info("TaskService :: addTaskToAssignment() :: Task Added Successfully :: Task ID: {}, Assignment ID: {}", 
