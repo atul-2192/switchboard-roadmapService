@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/v1/task")
 @Slf4j
 @Tag(name = "Task Management", description = "APIs for managing tasks within roadmap assignments")
 public class TaskController {

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/Roadmap")
+@RequestMapping("/api/v1/roadmap")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 @Tag(name = "Roadmap Management", description = "APIs for managing roadmap assignments")
