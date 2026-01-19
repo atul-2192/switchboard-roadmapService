@@ -11,9 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class RoadmapServiceApplication {
 
 	public static void main(String[] args) {
-		log.info("RoadmapServiceApplication :: main() :: Starting :: Roadmap Service Application");
 		SpringApplication.run(RoadmapServiceApplication.class, args);
-		log.info("RoadmapServiceApplication :: main() :: Started Successfully :: Roadmap Service Application");
 	}
 
 }
